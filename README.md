@@ -9,7 +9,10 @@
 
 ## About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+The purpose of this project is to show 2 options of ETL process which are:
+- Databricks (cloud)
+- Airflow (on-premisses)
+
 
 ## Getting Started <a name = "getting_started"></a>
 
