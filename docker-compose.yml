@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  airflow:
+    image: apache/airflow:2.6.0  # Ensure you use the latest Airflow image
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////usr/local/airflow/airflow.db
+    volumes:
+      - ./dags:/opt/airflow/dags  # Mount local DAGs folder
+      - ./plugins:/opt/airflow/plugins  # Mount plugins if needed
+    depends_on:
+      - spark-master
+    ports:
+      - "8080:8080"
+
+  spark-master:
+    image: bitnami/spark:latest  # Bitnami Spark image is pre-configured for easy setup
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "7077:7077"  # Spark master port
+      - "4040:4040"  # Spark UI port
+
+  spark-worker:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+
+  spark-history-server:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=history-server
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    ports:
+      - "18080:18080"
