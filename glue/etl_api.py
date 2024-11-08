@@ -4,7 +4,7 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, when, count
 
 # Initialize Glue job context
 args = getResolvedOptions(sys.argv, ['JOB_NAME'])
@@ -34,14 +34,16 @@ silver_df = bronze_df \
 silver_df = silver_df.withColumn("status", \ 
     when(col("value") > 100, "High").otherwise("Low"))
 
-# Write Silver Layer Data
-silver_df.write.format("delta").mode("overwrite").save(f"{silver_path}/silver/")
+# Write Silver Layer Data partitined by the brewery location.
+silver_df.write.format("delta").mode("overwrite").save(f"{silver_path}/silver/").partitionBy(col("id"))
 
 # Gold Layer - Aggregate Data
 # Example: Aggregating data for analysis, preparing final refined table
-gold_df = silver_df.groupBy("category_column").agg(
-    {"value": "avg", "other_metric": "sum"}
-)
+gold_df = silver_df.groupBy("brewery_type", "city") \
+    .agg(
+        count("*").alias("COUNT_brewery_city_combination")
+    )
+
 
 # Write Gold Layer Data
 gold_df.write.format("delta").mode("overwrite").save(f"{gold_path}/gold/")

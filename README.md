@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [About](#about)
+- [Getting Started](#getting_started)
 - [Usage](#usage)
 - [Contributing](../CONTRIBUTING.md)
 
@@ -14,9 +15,14 @@ The purpose of this project is to show a ETL processes data from an API and tran
 - AWS Glue (PySpark)
 
 
+### Getting Started
+
+This project uses an Airflow solution that triggers tasks to fetch data from a public API.
+It is considered to use Airflow as a orchestrator with AWS GLue transformations tasks within, to guarantee the Medalion Archtecture to be processed and stored into a S3 bucket (cloud storage).
+
 ### Prerequisites
 
-You have to install Docker before the execution of the Airflow,. After that, execute the following code to initiate the Airflow
+You have to install Docker before the execution of the Airflow. After that, execute the following code to initiate the Airflow
 
 ### Installing
 
