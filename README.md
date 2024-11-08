@@ -3,47 +3,52 @@
 ## Table of Contents
 
 - [About](#about)
-- [Getting Started](#getting_started)
 - [Usage](#usage)
 - [Contributing](../CONTRIBUTING.md)
 
 ## About <a name = "about"></a>
 
-The purpose of this project is to show 2 options of ETL process which are:
-- Databricks (cloud)
-- Airflow (on-premisses)
+The purpose of this project is to show a ETL processes data from an API and transform it at a analytical purpose, considering the following tools:
+- Airflow
+- AWS S3
+- AWS Glue (PySpark)
 
-
-## Getting Started <a name = "getting_started"></a>
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
-What things you need to install the software and how to install them.
-
-```
-Give examples
-```
+You have to install Docker before the execution of the Airflow,. After that, execute the following code to initiate the Airflow
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running.
+The instructions below cover Linux, macOS, and Windows.
+For Linux and macOS
 
-Say what the step will be
-
+1. Download Docker Compose:
 ```
-Give the example
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
-
-And repeat
-
+2. Aplly Execute permitions.
 ```
-until finished
+sudo chmod +x /usr/local/bin/docker-compose
 ```
-
-End with an example of getting some data out of the system or using it for a little demo.
+3. Check if it is installed
+```
+docker-compose --version
+```
 
 ## Usage <a name = "usage"></a>
 
-Add notes about how to use the system.
+For usage, you need to start docker locally.
+```
+docker-compose up airflow-init
+docker-compose up -d
+```
+
+After that, access the Airflow: 
+- Go to http://localhost:8080 in your browser. 
+- Use the credentials you set (admin/admin if you used the example).
+
+And to shut it down, you need this code.
+```
+docker-compose down
+```

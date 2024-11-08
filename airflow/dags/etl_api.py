@@ -46,7 +46,7 @@ def failure_alert(context):
     ).execute(context=context)
 
 
-def generate_dag(dag_id, start_date, schedule_interval, brewery):
+def generate_dag(dag_id, start_date, schedule_interval):
     
     #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   #####
     ########################### ########################### ########################### ########################### ########################### ###########################
@@ -204,7 +204,7 @@ def generate_dag(dag_id, start_date, schedule_interval, brewery):
                 os.remove(f'/tmp/all_breweries_data.json')
 
         # Set up task dependencies
-        clean_up() >> extract_task() >> ingest_task_to_s3() >> bronze_transformation() >> silver_transformation() >> gold_transformation()
+        clean_up() >> init() >> extract_data_from_api() >> ingest_task_to_s3() >> trigger_glue() >> check_glue_job_status()
 
     #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   ##### #####   ###########   #####
     ########################### ########################### ########################### ########################### ########################### ###########################
@@ -219,30 +219,16 @@ def generate_dag(dag_id, start_date, schedule_interval, brewery):
 ##############################################################################################
 
 
-list_brawery = []
-list_brawery = list_braweries(api_url)
+dag_id     = f"brawery_api_integration"
+start_date = datetime(2022,1,1, 13, 00)
 
-for brawery in list_brawery:
-    """
-        For each brawery create a new dag
-    """
-
-
-    dag_name           = ''.join( word.title() for word in brawery.name.split('-'))
-    dag_id             = f"brawery_{dag_name}_integration"
-    start_date         = brawery.airflow_start
-    
-    if start_date == None:  start_date = datetime(2022,6,30, 13, 00)
-    else:                   start_date = datetime(brawery.airflow_start.year, brawery.airflow_start.month, brawery.airflow_start.day)
-    
-    globals()[dag_id] = generate_dag(dag_id, start_date, '@daily', brawery)
-
+generate_dag(dag_id, start_date, '@daily')
 
 
 ##############################################################################################
 
+
+
+
+
 # bY cAKalimAN
-
-
-
-

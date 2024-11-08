@@ -15,13 +15,14 @@ job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
 # Define S3 paths for Bronze, Silver, and Gold layers
+S3_BUCKET = "bucket-name"
 BRONZE_PATH = f"s3://{S3_BUCKET}/bronze/"
 SILVER_PATH = f"s3://{S3_BUCKET}/silver/"
 GOLD_PATH = f"s3://{S3_BUCKET}/gold/"
 
 # Bronze Layer - Load Raw Data
 bronze_df = spark.read.json(bronze_path)  # Example for JSON; adjust format if needed
-bronze_df.write.mode("overwrite").parquet(f"{bronze_path}/bronze/")
+bronze_df.write.format("delta").mode("overwrite").save(f"{bronze_path}/bronze/")
 
 # Silver Layer - Transform Data (Cleansing and Processing)
 # Example: Filtering null values, removing duplicates
@@ -30,10 +31,11 @@ silver_df = bronze_df \
     .dropDuplicates(["unique_key_column"])
 
 # Enriching data - Add derived columns or transformations
-silver_df = silver_df.withColumn("status", when(col("value") > 100, "High").otherwise("Low"))
+silver_df = silver_df.withColumn("status", \ 
+    when(col("value") > 100, "High").otherwise("Low"))
 
 # Write Silver Layer Data
-silver_df.write.mode("overwrite").parquet(f"{silver_path}/silver/")
+silver_df.write.format("delta").mode("overwrite").save(f"{silver_path}/silver/")
 
 # Gold Layer - Aggregate Data
 # Example: Aggregating data for analysis, preparing final refined table
@@ -42,7 +44,7 @@ gold_df = silver_df.groupBy("category_column").agg(
 )
 
 # Write Gold Layer Data
-gold_df.write.mode("overwrite").parquet(f"{gold_path}/gold/")
+gold_df.write.format("delta").mode("overwrite").save(f"{gold_path}/gold/")
 
 # Commit the job
 job.commit()
